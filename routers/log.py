@@ -10,6 +10,7 @@ from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
+from global_exception_handler.exceptions import authenticationFailedException, authentication_exception_handler
 
 
 
@@ -53,10 +54,10 @@ async def get_current_user(token : Annotated[str, Depends(oauth2_bearer)]):
         role : str = payload.get('role')
         
         if username is None or user_id is None or role is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User Authentication Failed.')
+            raise authenticationFailedException(msg="Authentication Failed.")
         return {'username' : username, 'id' : user_id, 'role' : role}
     except JWTError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User Authentication Failed.')
+            raise authenticationFailedException(msg="Authentication Failed.")
     
 
 
@@ -82,4 +83,4 @@ async def login_for_access_token(form_data : Annotated[OAuth2PasswordRequestForm
         
         return {'access_token' : token , 'token_type' : 'bearer'}
     
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User Authentication Failed.')
+    raise authenticationFailedException(msg="Authentication Failed.")

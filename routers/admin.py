@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from schemas import Todos as todos_data
 from starlette import status
 from routers.log import get_current_user
-from global_exception_handler.exceptions import authenticationFailedException
+from global_exception_handler.exceptions import authenticationFailedException, authentication_exception_handler,dataNotFoundException, dataNotFoundException_handler
 
 router = APIRouter(
     prefix='/admin',
@@ -31,15 +31,16 @@ db_dependency=Annotated[Session,Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
+
 @router.get('/getAllUsers')
 def getAllUsers(user : user_dependency,db : db_dependency):
     if user is None or user.get('role') !='admin':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Authentication Failed.')
+        raise authenticationFailedException(msg="Authentication Failed.")
     
     data_li = db.query(User).filter(User.role == 'user').all()
     
     if len(data_li)<1:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Users data is not found.')
+        raise dataNotFoundException(msg="User data not found.")
     
     ele=[]
     for data in data_li:
@@ -56,7 +57,7 @@ def getAllUsers(user : user_dependency,db : db_dependency):
 @router.get('/getUserbyId/{id}')
 def getUserbyId(ud : user_dependency, db : db_dependency, id : int):
     if ud is None or ud.get('role')!='admin':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed.")
+        raise authenticationFailedException(msg="Authentication Failed.")
     data = db.query(User).filter(User.id==id).first()
     if data is not None:
         result = User(
@@ -65,19 +66,19 @@ def getUserbyId(ud : user_dependency, db : db_dependency, id : int):
             username = data.username,
         )
         return result
-    raise HTTPException(status_code=404, detail='User does not exists.')
+    raise dataNotFoundException(msg="User data not found.")
 
 
 @router.delete('/deleteUser/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def deleteUser(ud : user_dependency,db : db_dependency, id : int):
     if ud is None or ud.get('role')!='admin':
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication Failed.")
+        raise authenticationFailedException(msg="Authentication Failed.")
     
     user_data = db.query(User).filter(User.id == id).first()
     
     
     if user_data is None:
-        raise HTTPException(status_code=404,detail='User Not found.')
+        raise dataNotFoundException(msg="User data not found.")
     
     db.query(Todos).filter(Todos.owner == id).delete()
     db.query(User).filter(User.id==id).delete()

@@ -2,27 +2,25 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette import status
 
-app = FastAPI()
-
-class dataMismatchException(Exception):
-    def __init__(self, msg : str):
-        self.msg=msg
-
-@app.exception_handler(dataMismatchException)
-def data_mismatch(request:Request, exc: dataMismatchException):
-    return JSONResponse(
-        status_code=status.HTTP_409_CONFLICT,
-        content={'message' : exc.msg},
-    )
-    
 
 class authenticationFailedException(Exception):
     def __init__(self,msg : str):
         self.msg=msg
 
-@app.exception_handler(authenticationFailedException)
-async def authentication_Exception(request:Request, exc: authenticationFailedException):
+
+async def authentication_exception_handler(request:Request, exc: authenticationFailedException):
     return JSONResponse(
-        status_code=409,
+        status_code=status.HTTP_401_UNAUTHORIZED,
         content={"message":f"{exc.msg}"},
+    )
+
+    
+class dataNotFoundException(Exception):
+    def __init__(self, msg : str):
+        self.msg=msg
+
+async def dataNotFoundException_handler(request:Request, exc : dataNotFoundException):
+    return JSONResponse(
+        status_code=status.HTTP_404_NOT_FOUND,
+        content={"message" : f"{exc.msg}"},
     )

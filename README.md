@@ -1,22 +1,22 @@
 # FastAPI_TodoAPK
 FastAPI sample application(only backend).
 
-# Routers :
+ Routers :
         Admin : admin.py
         User : user_rout.py
         Todos : todos.py
         Authentication : log.py
 
-# Global Exception Handler :
+ Global Exception Handler :
         Global_Exception_handler/exceptions.py
 
-# Database : 
+ Database : 
       Server : Postgres
-
-# Table structure and schemas:
+      
+ Table structure and schemas:
       Table Creation : models.py
       Schemas : schemas.py
 
-# Apk : 
+ Apk : 
     main.py
 

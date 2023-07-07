@@ -20,11 +20,6 @@ app.add_exception_handler(authenticationFailedException, authentication_exceptio
 app.add_exception_handler(dataNotFoundException, dataNotFoundException_handler)
 
 
-
-
-
 @app.get('/')
 def home():
     return "Hello"
-
-
